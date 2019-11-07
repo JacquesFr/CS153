@@ -7,13 +7,15 @@
 #include "mmu.h"
 #include "proc.h"
 
-void
+int
 sys_setpriority(void){
     int priority;
-    if(argint(0, &priority) < 0)
+    if(argint(0, &priority)){
 	return -1;
+    }
 
-    return setpriority(priority); 
+    setpriority(priority);
+    return 0; 
 }
 
 int

@@ -22,11 +22,7 @@ static void wakeup1(void *chan);
 
 void
 setpriority(int priority){
-    struct proc *p;
-
-    acquire(&ptable.lock); 
-    p->priority = priority;
-    release(&ptable.lock);
+    myproc()->priority = priority;
 }
 
 void
@@ -330,7 +326,6 @@ wait(void)
 //  - eventually that process transfers control
 //      via swtch back to the scheduler.
 
-#define NULL 0
 
 void
 scheduler(void)
@@ -339,33 +334,39 @@ scheduler(void)
   struct proc *p1;
   struct cpu *c = mycpu();
   c->proc = 0;
-  
+  int highpri = 31; 
   for(;;){
     // Enable interrupts on this processor.
     sti();
+    highpri = 31;
 
-    struct proc *highPriority = NULL;
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->state != RUNNABLE)
+      if(p->state != RUNNABLE){
         continue;
-      highPriority = p;
-
+       }
+    highpri = 31;
       for(p1 = ptable.proc; p1 < &ptable.proc[NPROC]; p1++){
-	if(p1->state != RUNNABLE)
+	if(p1->state != RUNNABLE){
 	    continue;
-	if(highPriority->priority > p1->priority)	//larger value, lower its priority
-	    highPriority = p1;
+        }
+	if(p1->priority < highpri){	//larger value, lower its priority
+	    highpri = p1->priority;
+	    p = p1;
+        }
       }      
-      p = highPriority;
-      proc = p;
-
+      
+     
+      c->proc = p;
       switchuvm(p);
-
+      p->state = RUNNING;
+      swtch(&(c->scheduler), p->context);
+      switchkvm();
       // Process is done running for now.
       // It should have changed its p->state before coming back.
       c->proc = 0;
+      p1 = 0;
     }
     release(&ptable.lock);
 
