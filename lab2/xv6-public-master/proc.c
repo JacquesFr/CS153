@@ -339,23 +339,22 @@ scheduler(void)
     // Enable interrupts on this processor.
     sti();
     highpri = 31;
-
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->state != RUNNABLE){
+      if(p->state != RUNNABLE)
         continue;
-       }
-    highpri = 31;
+       
+      highpri = 31;
+
       for(p1 = ptable.proc; p1 < &ptable.proc[NPROC]; p1++){
-	if(p1->state != RUNNABLE){
+	if(p1->state != RUNNABLE)
 	    continue;
-        }
-	if(p1->priority < highpri){	//larger value, lower its priority
+        
+	if(p1->priority < highpri)	//larger value, lower its priority
 	    highpri = p1->priority;
-	    p = p1;
-        }
-      }      
+	p = p1;
+      }     
       
      
       c->proc = p;
