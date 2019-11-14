@@ -77,8 +77,24 @@ trap(struct trapframe *tf)
             cpuid(), tf->cs, tf->eip);
     lapiceoi();
     break;
-
-  //PAGEBREAK: 13
+///////////////////CS153: Lab3
+  case T_PGFLT:
+    if( (rcr = rcr2() ) == -1){
+      myproc()->killed = -1;
+      break;
+    }
+//  
+   //case t_pgflt:
+    if((sp = allocuvm( my proc()->pgdir, rcr -PGSIZE, rcr )) == 0 ) {
+    //if the allocuvm was not successful ERROR
+     myproc()->killed = 1;
+     exit();
+    }
+    myproc()->stackPages +=1;
+    //print out if the allocation was successful
+    cprintf("allocuvm successful, number of pages:", myproc()->stackPages);
+ break;
+ //PAGEBREAK: 13
   default:
     if(myproc() == 0 || (tf->cs&3) == 0){
       // In kernel, it must be our mistake.
@@ -100,7 +116,7 @@ trap(struct trapframe *tf)
   if(myproc() && myproc()->killed && (tf->cs&3) == DPL_USER)
     exit();
 
-  // Force process to give up CPU on clock tick.
+ // Force process to give up CPU on clock tick.
   // If interrupts were on while locks held, would need to check nlock.
   if(myproc() && myproc()->state == RUNNING &&
      tf->trapno == T_IRQ0+IRQ_TIMER)
