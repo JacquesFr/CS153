@@ -36,6 +36,9 @@ idtinit(void)
 void
 trap(struct trapframe *tf)
 {
+  uint sp;  //lab3
+  uint rcr; //lab3
+
   if(tf->trapno == T_SYSCALL){
     if(myproc()->killed)
       exit();
@@ -85,14 +88,14 @@ trap(struct trapframe *tf)
     }
 //  
    //case t_pgflt:
-    if((sp = allocuvm( my proc()->pgdir, rcr -PGSIZE, rcr )) == 0 ) {
+    if((sp = allocuvm( myproc()->pgdir, rcr -PGSIZE, rcr )) == 0 ) {
     //if the allocuvm was not successful ERROR
      myproc()->killed = 1;
      exit();
     }
     myproc()->stackPages +=1;
     //print out if the allocation was successful
-    cprintf("allocuvm successful, number of pages:", myproc()->stackPages);
+   // cprintf("allocuvm successful, number of pages:", myproc()->stackPages);
  break;
  //PAGEBREAK: 13
   default:
