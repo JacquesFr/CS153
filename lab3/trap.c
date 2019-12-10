@@ -81,7 +81,9 @@ trap(struct trapframe *tf)
     lapiceoi();
     break;
 ///////////////////CS153: Lab3
+
   case T_PGFLT:
+    //cprintf("Num of Pages at the start of program %d", rcr2()); 
     if( (rcr = rcr2() ) == -1){
       myproc()->killed = -1;
       break;
@@ -95,7 +97,7 @@ trap(struct trapframe *tf)
     }
     myproc()->stackPages +=1;
     //print out if the allocation was successful
-   // cprintf("allocuvm successful, number of pages:", myproc()->stackPages);
+    cprintf("allocuvm successful, number of pages: %d \n", myproc()->stackPages);
  break;
  //PAGEBREAK: 13
   default:

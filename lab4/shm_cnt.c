@@ -32,6 +32,9 @@ shm_open(1,(char **)&counter);
 //print something because we are curious and to give a chance to switch process
      if(i%1000 == 0)
        printf(1,"Counter in %s is %d at address %x\n",pid? "Parent" : "Child", counter->cnt, counter);
+
+	
+	urelease(&(counter->lock));
 }
   
   if(pid)
